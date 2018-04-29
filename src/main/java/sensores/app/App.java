@@ -10,24 +10,26 @@ public class App
 {
     public static void main( String[] args )
     {
-    	 String topic        = "iscte_sid_2016_S1";                                                              
+    	  String topic        = "iscte_sid_2016_S1";                                                              
     	  String broker       = "tcp://iot.eclipse.org";                 
-    	  String clientId     = "js-utility-aAnTY";                          
+    	  String clientId     = "js-utility-QJnOD";                          
     	  MemoryPersistence persistence = new MemoryPersistence();           
     	                                                                     
-    	  try {                                                              
+    	  try {    
+    		  MongoConnection mongoConnection = new MongoConnection();
+    		  
     	      MqttClient client = new MqttClient(broker, clientId, persistence);
     	                                                                     
     	                                                                     
     	      MqttConnectOptions connOpts = new MqttConnectOptions();        
-    	      connOpts.setCleanSession(true);                                
+    	      connOpts.setCleanSession(true);  
     	                                                                     
     	      client.connect();                                                                                
     	      client.subscribe(topic);                                       
     	       boolean connected = client.isConnected();                     
     	      System.out.println("Connected: " + connected);                   
     	                                                                     
-    	      client.setCallback(new SimpleMqttCallBack());                  
+    	      client.setCallback(new SimpleMqttCallBack(mongoConnection));                  
     	                                                                     
     	  } catch (MqttException me) {                                       
     	      System.out.println("reason "+ me.getReasonCode());             

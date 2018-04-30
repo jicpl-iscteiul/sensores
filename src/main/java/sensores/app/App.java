@@ -17,11 +17,6 @@ public class App {
 		String clientId = "js-utility-QJnOD";
 		MemoryPersistence persistence = new MemoryPersistence();
 
-		Timer t = new Timer();
-		CronJob mTask = new CronJob();
-		// This task is scheduled to run every 10 seconds
-
-		t.scheduleAtFixedRate(mTask, 0, 10000);
 
 		try {
 			MongoConnection mongoConnection = new MongoConnection();

@@ -3,12 +3,19 @@ package export;
 import javax.script.*;
 
 import com.eclipsesource.v8.NodeJS;
+import com.mongodb.util.Hash;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.TimerTask;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.*;
 
 public class CronJob extends TimerTask {
+
+	private boolean loaded;
+	private HashMap<Integer,HashMap<Integer,List<Double>>> variaveisMedidas;
 
 	public CronJob() {
 	}
@@ -94,4 +101,89 @@ public class CronJob extends TimerTask {
 
 	 */
 
+	public void updateAlerts(ResultSet rs, Statement stmt, Integer idCultura) throws SQLException {
+		loadLimits(stmt);
+
+
+		while (rs.next()) {
+			int value = rs.getInt(1);
+			String string1 = rs.getString(2);
+			String string2 = rs.getString(3);
+
+			//Iteração sobre culturas
+			Map<Integer, HashMap<Integer,List<Double>>> mapCultura = variaveisMedidas;
+			Iterator<Map.Entry<Integer, HashMap<Integer,List<Double>>>> entriesCultura = mapCultura.entrySet().iterator();
+			while (entriesCultura.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List<Double>>> entryCulturaMap = entriesCultura.next();
+
+				//Iteração sobre Variaveis
+				Map<Integer,List<Double>> mapLimits = entryCulturaMap.getValue();
+				Iterator<Map.Entry<Integer, List<Double>>> entriesLimits = mapLimits.entrySet().iterator();
+				while (entriesLimits.hasNext()) {
+					Map.Entry<Integer, List<Double>> entryVariavlesMap = entriesLimits.next();
+					List<Double> limitsHash = entryVariavlesMap.getValue();
+					if(value > limitsHash.get(0)){
+						//Gerar alerta
+
+						//Cultura:
+						entryCulturaMap.getKey();
+
+						//Variaveis:
+						entryVariavlesMap.getKey();
+
+						//Limite
+						limitsHash.get(0);
+
+						//Criar o Alerta
+						String Alert = "";
+
+						//Registar o Alerta
+						ResultSet limits = stmt.executeQuery(
+								"INSERT descricao, a, b, c TABELA VALUES (alert , 'a', 'b')");
+
+
+					}
+				}
+
+
+
+
+
+			}
+
+
+		}
+
+	}
+
+	private void loadLimits(Statement stmt) throws SQLException {
+
+		//Confirmar campos na tabela variaveis medidas
+		//verificar : -ordem -nomes -sensitiveCase
+		if(!loaded){
+			variaveisMedidas= new HashMap<Integer, HashMap<Integer, List<Double>>>();
+			ResultSet limits = stmt.executeQuery(
+					"SELECT limitinferior, limitesuperior, idvariavel, idcultura FROM variaveismedidas");
+			while(limits.next()) {
+				Double limiteInferior 	= limits.getDouble(0);
+				Double limiteSuperior 	= limits.getDouble(1);
+				Integer idVariavel 		= limits.getInt(2);
+				Integer idCultura 		= limits.getInt(3);
+
+
+				//Lista de Limites
+				List<Double> listLimits= new ArrayList<Double>();
+				listLimits.add(limiteInferior);
+				listLimits.add(limiteSuperior);
+
+				//Hash de Variaveis
+				HashMap<Integer,List<Double>> hashVariavelLimites = new HashMap<Integer,List<Double>>();
+				hashVariavelLimites.put(idVariavel,listLimits);
+
+				//Recriação da tabela
+				variaveisMedidas.put(idCultura,hashVariavelLimites);
+				loaded = true;
+			}
+		}
+	}
 }

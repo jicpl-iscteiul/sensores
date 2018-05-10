@@ -11,11 +11,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
+import Objects.*;
 
 public class CronJob extends TimerTask {
 
 	private boolean loaded;
-	private HashMap<Integer,HashMap<Integer,List<Double>>> variaveisMedidas;
+	//private HashMap<Integer,HashMap<Integer,List<Double>>> variaveisMedidas;
+	private List<Cultura> listCultura;
 
 	public CronJob() {
 	}
@@ -101,7 +103,7 @@ public class CronJob extends TimerTask {
 
 	 */
 
-	public void updateAlerts(ResultSet rs, Statement stmt, Integer idCultura) throws SQLException {
+/*	public void updateAlerts(ResultSet rs, Statement stmt, Integer idCultura) throws SQLException {
 		loadLimits(stmt);
 
 
@@ -144,46 +146,88 @@ public class CronJob extends TimerTask {
 
 					}
 				}
-
-
-
-
-
 			}
+		}
+	}*/
 
 
+	public void updateAlerts(ResultSet rs, Statement stmt, Integer idCultura) throws SQLException {
+		while (rs.next()) {
+			int value = rs.getInt(1);
+			String string1 = rs.getString(2);
+			String string2 = rs.getString(3);
+
+			//Iteração sobre culturas
+			for(Cultura c :listCultura){
+				if(value > c.getLimiteinferiorhumidade()){
+					//Gerar alerta
+
+					//Cultura:
+					c.getNomeCultura();
+
+					//Limite
+					c.getLimiteinferiorhumidade();
+
+					//Criar o Alerta
+					String Alert = "";
+
+					//Registar o Alerta
+					ResultSet limits = stmt.executeQuery(
+							"INSERT descricao, a, b, c TABELA VALUES (alert , 'a', 'b')");
+
+
+				}
+			}
 		}
 
 	}
 
-	private void loadLimits(Statement stmt) throws SQLException {
 
+
+	private void loadLimits(Statement stmt) throws SQLException {
+		this.listCultura = new ArrayList<Cultura>();
 		//Confirmar campos na tabela variaveis medidas
 		//verificar : -ordem -nomes -sensitiveCase
 		if(!loaded){
-			variaveisMedidas= new HashMap<Integer, HashMap<Integer, List<Double>>>();
+			//variaveisMedidas= new HashMap<Integer, HashMap<Integer, List<Double>>>();
 			ResultSet limits = stmt.executeQuery(
-					"SELECT limitinferior, limitesuperior, idvariavel, idcultura FROM variaveismedidas");
+					//"SELECT limitinferior, limitesuperior, idvariavel, idcultura FROM variaveismedidas");
+					"SELECT idcultura, " +
+								"nomecultura, " +
+								"limiteinferiortemperatura, " +
+								"limitesuperiortemperatura " +
+								"limiteinferiorhumidade"+
+								"limitesuperiorhumidade"+
+								"FROM cultura");
 			while(limits.next()) {
-				Double limiteInferior 	= limits.getDouble(0);
-				Double limiteSuperior 	= limits.getDouble(1);
-				Integer idVariavel 		= limits.getInt(2);
-				Integer idCultura 		= limits.getInt(3);
+				Integer idCultura 		= limits.getInt("idcultura");
+				String nomeCultura 		= limits.getString("nomecultura");
+				Double limiteinferiortemperatura 	= limits.getDouble("limiteinferiortemperatura");
+				Double limitesuperiortemperatura 	= limits.getDouble("limitesuperiortemperatura");
+				Double limiteinferiorhumidade 	= limits.getDouble("limiteinferiorhumidade");
+				Double limitesuperiorhumidade 	= limits.getDouble("limitesuperiorhumidade");
 
+				listCultura.add(new Cultura(idCultura,
+											nomeCultura,
+											limiteinferiortemperatura,
+											limitesuperiortemperatura,
+											limiteinferiorhumidade,
+											limitesuperiorhumidade));
 
 				//Lista de Limites
-				List<Double> listLimits= new ArrayList<Double>();
-				listLimits.add(limiteInferior);
-				listLimits.add(limiteSuperior);
-
-				//Hash de Variaveis
-				HashMap<Integer,List<Double>> hashVariavelLimites = new HashMap<Integer,List<Double>>();
-				hashVariavelLimites.put(idVariavel,listLimits);
+//				List<Double> listLimits= new ArrayList<Double>();
+//				listLimits.add(limiteInferior);
+//				listLimits.add(limiteSuperior);
+//
+//				//Hash de Variaveis
+//				HashMap<Integer,List<Double>> hashVariavelLimites = new HashMap<Integer,List<Double>>();
+//				hashVariavelLimites.put(idVariavel,listLimits);
 
 				//Recriação da tabela
-				variaveisMedidas.put(idCultura,hashVariavelLimites);
-				loaded = true;
+				//variaveisMedidas.put(idCultura,hashVariavelLimites);
+
 			}
+			loaded = true;
 		}
 	}
 }

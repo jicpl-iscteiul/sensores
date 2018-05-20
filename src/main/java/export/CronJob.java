@@ -1,16 +1,21 @@
 package export;
 
 import javax.script.*;
+import com.mongodb.*;
 
 import com.eclipsesource.v8.NodeJS;
+import sensores.app.MongoConnection;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.TimerTask;
 
 public class CronJob extends TimerTask {
+	MongoConnection mongoConnection;
+	DBCollection collection;
 
 	public CronJob() {
+	//	collection = mongoConnection.getCollection();
 	}
 
 	@Override
@@ -19,25 +24,8 @@ public class CronJob extends TimerTask {
 
 		// run script to export data from mongo to sybase
 
-		Runtime rt = Runtime.getRuntime();
-		Process pr;
-		try {
-			pr = rt.exec(
-					"C:\\Program Files\\MongoDB\\Server\\3.6\\bin\\mongoexport --db sensores --collection info --type=csv --out " + System.getProperty("user.dir") + "\\exported.csv --fields sensor,datapassagem,horapassagem,valormedicaotemperatura,valormedicaohumidade");
-			pr.waitFor();
-			
-		/*	rt.exec("INPUT INTO HumidadeTemperatura\r\n" + 
-					"FROM " + System.getProperty("user.dir") + "\\exported.csv\r\n" + 
-					"FORMAT TEXT; SELECT * FROM HumidadeTemperatura;");
-			
-			pr.waitFor();*/
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			DBCursor cur = collection.find();
+			System.out.println(cur);
 		
 	}
 	

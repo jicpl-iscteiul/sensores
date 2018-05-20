@@ -12,16 +12,16 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 public class App {
 	public static void main(String[] args) {
-		String topic = "iscte_sid_2016_S1";
+		String topic = "sid_lab_2018";
 		String broker = "tcp://iot.eclipse.org";
-		String clientId = "js-utility-QJnOD";
+		String clientId = "js-utility-5EPMo";
 		MemoryPersistence persistence = new MemoryPersistence();
 
 
 		try {
 			MongoConnection mongoConnection = new MongoConnection();
 
-			MqttClient client = new MqttClient(broker, clientId, persistence);
+			MqttClient client = new MqttClient(broker, clientId);
 
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setCleanSession(true);
@@ -32,6 +32,8 @@ public class App {
 			System.out.println("Connected: " + connected);
 
 			client.setCallback(new SimpleMqttCallBack(mongoConnection));
+
+            connOpts.setAutomaticReconnect(true);
 
 		} catch (MqttException me) {
 			System.out.println("reason " + me.getReasonCode());

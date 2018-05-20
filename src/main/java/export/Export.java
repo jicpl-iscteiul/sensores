@@ -1,5 +1,7 @@
 package export;
 
+import sensores.app.MongoConnection;
+
 import java.util.Timer;
 
 public class Export {

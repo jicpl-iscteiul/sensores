@@ -3,24 +3,25 @@ package sensores.app;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONObject;
 
 public class SimpleMqttCallBack implements MqttCallback {
-	MongoConnection mongoConnection;
+	private MessageProcessor processor;
 	
 	public SimpleMqttCallBack(MongoConnection mongoConnection) {
-		this.mongoConnection = mongoConnection;
+		this.processor = new MessageProcessor(mongoConnection);
 	}
 
     public void connectionLost(Throwable throwable) {
         System.out.println("Connection to MQTT broker lost!");
     }
 
-    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+    public void messageArrived(String s, MqttMessage mqttMessage) {
         System.out.println("Message received:\n\t"+ new String(mqttMessage.getPayload()) );
         String json = new String(mqttMessage.getPayload());
-        mongoConnection.save(json);
-        System.out.println("json: " + json);
+        processor.runVerification(json);
+
+//        System.out.println("json: " + json);
     }
 
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {

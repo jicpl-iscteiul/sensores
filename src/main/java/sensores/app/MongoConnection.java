@@ -1,39 +1,37 @@
 package sensores.app;
 
-import java.net.UnknownHostException;
+import org.json.JSONObject;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.*;
+import org.bson.Document;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.util.JSON;
+import sensores.app.Translators.*;
 
 public class MongoConnection {
 
-	MongoClient mongoClient;
-	DB database;
-	DBCollection collection;
+    MongoClient mongoClient;
+    MongoDatabase database;
+    MongoCollection<Document> collection_sensores;
 
-	public MongoConnection() {
-		try {
-			mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-			database = mongoClient.getDB("sensores");
-			collection = database.getCollection("info");
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
-	public void save(String json) {
-		
-		DBObject dbObject = (DBObject)JSON.parse(json);
-		
-		collection.insert(dbObject);
-		
-		System.out.println("Inserted: " + json );
+    public MongoConnection() {
+        try {
+            mongoClient = MongoClients.create("mongodb://appSensores:super_password@ds129560.mlab.com:29560/sensoresdb");
+            database = mongoClient.getDatabase("sensoresdb");
+            collection_sensores = database.getCollection("sensores_info");
 
-	}
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void save(Document document) {
+        if (document==null){
+            throw new NullPointerException("Document cannot be null");
+        }
+                collection_sensores.insertOne(document);
+        }
+
 }

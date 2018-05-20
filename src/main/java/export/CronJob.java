@@ -1,85 +1,70 @@
 package export;
 
-import javax.script.*;
-import com.mongodb.*;
-
-import com.eclipsesource.v8.NodeJS;
+import org.bson.Document;
+import org.json.JSONObject;
 import sensores.app.MongoConnection;
 
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
 import java.util.TimerTask;
+import java.util.Timer;
 
-public class CronJob extends TimerTask {
-	MongoConnection mongoConnection;
-	DBCollection collection;
+public class CronJob {
+    private TimerTask timerTask;
+    private static int counter = 0;
+    private int time_to_export;
+    private MongoConnection mongoConnection;
 
-	public CronJob() {
-	//	collection = mongoConnection.getCollection();
-	}
+    CronJob() {
+        try {
+            Properties prop = new Properties();
+            InputStream input = new FileInputStream("config.properties");
+            // load a properties file
+            prop.load(input);
 
-	@Override
-	public void run() {
-		System.out.println("Hi see you after 10 seconds");
+            // get the property value and print it out
+            time_to_export = Integer.parseInt(prop.getProperty("time_to_export_info"));
 
-		// run script to export data from mongo to sybase
+            mongoConnection = new MongoConnection();
 
-			DBCursor cur = collection.find();
-			System.out.println(cur);
-		
-	}
-	
-	/*
-	 * 
-11
-    public static void main(String[] args) throws SQLException {
-12
-        // uid - user id
-13
-        // pwd - password
-14
-        // eng - Sybase database server name
-15
-        // database - sybase database name
-16
-        // host - database host machine ip
-17
-        String dburl = "jdbc:sqlanywhere:uid=DBA;pwd=DBA;eng=devdb;database=devdb;links=tcpip(host=172.20.20.20)";
-18
-         
-19
-        // Connect to Sybase Database
-20
-        Connection con = DriverManager.getConnection(dburl);
-21
-        Statement statement = con.createStatement();
-22
- 
-23
-        // We use Sybase specific select getdate() query to return date
-24
-        ResultSet rs = statement.executeQuery("SELECT GETDATE()");
-25
-         
-26
-         
-27
-        if (rs.next()) {
-28
-            Date currentDate = rs.getDate(1); // get first column returned
-29
-            System.out.println("Current Date from Sybase is : "+currentDate);
-30
+            //TODO: Connect to Sybase
+
+            startExport();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-31
-        rs.close();
-32
-        statement.close();
-33
-        con.close();
-34
+
     }
 
-	 */
+    private void startExport() {
+        timerTask = new TimerTask() {
+
+            // TODO: Implement Transact
+            @Override
+            public void run() {
+                List<Document> documents = null;
+                try {
+                    documents = mongoConnection.findAll();
+                    if (!documents.isEmpty()) {
+                        for (Document document : documents) {
+                            System.out.println(document);
+                        }
+                        //TODO: Save on Sybase
+                        mongoConnection.saveBackup(documents);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+
+        Timer timer = new Timer("MyTimer");//create a new Timer
+
+        timer.scheduleAtFixedRate(timerTask, 0, 10000);
+    }
 
 }

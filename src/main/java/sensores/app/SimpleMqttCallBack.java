@@ -5,11 +5,15 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONObject;
 
+import java.util.Properties;
+
 public class SimpleMqttCallBack implements MqttCallback {
 	private MessageProcessor processor;
+    private Properties prop;
 	
-	public SimpleMqttCallBack(MongoConnection mongoConnection) {
-		this.processor = new MessageProcessor(mongoConnection);
+	public SimpleMqttCallBack(Properties prop) {
+		this.prop = prop;
+        this.processor = new MessageProcessor(prop);
 	}
 
     public void connectionLost(Throwable throwable) {

@@ -2,31 +2,52 @@ package sensores.app;
 
 import org.bson.Document;
 import org.json.JSONObject;
+
+import java.util.Properties;
 import java.util.TimerTask;
 import java.util.Timer;
 
 public class MessageProcessor {
     private MongoConnection mongoConnection;
-    private  TimerTask timerTask;
+    private TimerTask timerTask;
+    private Properties prop;
+    private boolean isFirstRun = true;
 
     static int counter = 0;
 
-    MessageProcessor(MongoConnection mongoConnection){
-        this.mongoConnection = mongoConnection;
+    MessageProcessor(Properties prop) {
+        mongoConnection = new MongoConnection();
+        this.prop = prop;
+
     }
 
-    public void runVerification(String info){
+    public void runVerification(String info) {
+        // TODO: Add verification to all fields
         JSONObject object = new JSONObject(info);
         Document document = Translators.translateToMongo(object);
-        if (document==null)
+        if (document == null)
             System.out.println("Invalid Payload!");
-        else{
-            mongoConnection.save(document);
+        else if (isFirstRun) {
             startTimer();
+            if (isValid()) {
+                mongoConnection.save(document);
+                isFirstRun = false;
+            }
         }
-    }
+        else if (isTimeToSave()) {
+                if (isValid()) {
+                    mongoConnection.save(document);
+                    startTimer();
+                }
+            }
+        }
 
-    private void startTimer(){
+    //TODO: Add method to identify anomalies and save it on a buffer to compare on next
+
+    private void startTimer() {
+        if (timerTask != null)
+            timerTask.cancel();
+
         timerTask = new TimerTask() {
 
             @Override
@@ -41,12 +62,12 @@ public class MessageProcessor {
         timer.scheduleAtFixedRate(timerTask, 0, 1000);
     }
 
-    private void restartTimer(){
-        timerTask.cancel();
-        startTimer();
+    private boolean isTimeToSave() {
+        System.out.println("TIME " + Integer.parseInt(prop.getProperty("time_to_save_info")));
+        return counter >= Integer.parseInt(prop.getProperty("time_to_save_info"));
     }
 
-    private boolean isTimeToSave(){
-        return counter >= 10;
+    private boolean isValid() {
+        return true;
     }
 }

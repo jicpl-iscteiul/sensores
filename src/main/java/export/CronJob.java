@@ -34,22 +34,31 @@ public class CronJob {
             time_to_export = Integer.parseInt(prop.getProperty("time_to_export_info"));
 
             mongoConnection = new MongoConnection();
-
+            DriverManager.registerDriver( (Driver)
+                    Class.forName(
+                            "com.sybase.jdbc3.jdbc.SybDriver").newInstance()
+            );
 
             //STEP 3: Open a connection
             System.out.println("Connecting to database...");
+
             Class.forName("sybase.jdbc4.sqlanywhere.IDriver");
             //conn = DriverManager.getConnection("jdbc4:sqlanywhere:uid=DBA;pwd=sql;");
             conn = DriverManager.getConnection("jdbc:sqlanywhere:uid=DBA;pwd=sql;eng=sidproject");
 
+
+            System.out.println("FIm");
             startExport();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-
-
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
         }
 
     }
@@ -99,5 +108,8 @@ public class CronJob {
 
         timer.scheduleAtFixedRate(timerTask, 0, 10000);
     }
+
+
+
 
 }

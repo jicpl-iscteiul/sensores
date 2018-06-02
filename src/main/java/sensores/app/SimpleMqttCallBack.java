@@ -22,7 +22,6 @@ public class SimpleMqttCallBack implements MqttCallback {
         String json = new String(mqttMessage.getPayload());
         processor.runVerification(json);
 
-//        System.out.println("json: " + json);
     }
 
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {

@@ -13,7 +13,7 @@ public class MessageProcessor {
     private Properties prop;
     private boolean isFirstRun = true;
 
-    static int counter = 0;
+    private int counter = 0;
 
     MessageProcessor(Properties prop) {
         mongoConnection = new MongoConnection();
@@ -22,7 +22,6 @@ public class MessageProcessor {
     }
 
     public void runVerification(String info) {
-        // TODO: Add verification to all fields
         JSONObject object = new JSONObject(info);
         Document document = Translators.translateToMongo(object);
         if (document == null)
@@ -45,8 +44,10 @@ public class MessageProcessor {
     //TODO: Add method to identify anomalies and save it on a buffer to compare on next
 
     private void startTimer() {
-        if (timerTask != null)
+        if (timerTask != null) {
             timerTask.cancel();
+        	counter = 0;
+        }
 
         timerTask = new TimerTask() {
 

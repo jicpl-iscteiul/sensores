@@ -9,6 +9,7 @@ import java.util.Date;
 public class Translators {
 
     public static Document translateToMongo(JSONObject info) {
+        // TODO: Add verification to all fields
         System.out.println(info);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
         Document document = null;

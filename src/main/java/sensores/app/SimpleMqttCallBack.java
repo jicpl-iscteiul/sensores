@@ -3,16 +3,13 @@ package sensores.app;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.json.JSONObject;
 
 import java.util.Properties;
 
 public class SimpleMqttCallBack implements MqttCallback {
 	private MessageProcessor processor;
-    private Properties prop;
-	
-	public SimpleMqttCallBack(Properties prop) {
-		this.prop = prop;
+
+	SimpleMqttCallBack(Properties prop) {
         this.processor = new MessageProcessor(prop);
 	}
 

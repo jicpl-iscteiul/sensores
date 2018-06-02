@@ -2,21 +2,18 @@ package sensores.app;
 
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoClient;
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.*;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
-import javax.print.Doc;
 import java.util.List;
 
 public class MongoConnection {
 
-    MongoClient mongoClient;
-    MongoDatabase database;
-    MongoCollection<Document> collection_sensores;
-    MongoCollection<Document> collection_backup;
+    private MongoClient mongoClient;
+    private MongoDatabase database;
+    private MongoCollection<Document> collection_sensores;
+    private MongoCollection<Document> collection_backup;
 
 
     public MongoConnection() {
@@ -37,7 +34,6 @@ public class MongoConnection {
             throw new NullPointerException("Document cannot be null");
         }
         collection_sensores.insertOne(document);
-        System.out.println("SAVED");
     }
 
     public List<Document> findAll() throws Exception {

@@ -39,8 +39,7 @@ public class CronJob {
             //STEP 3: Open a connection
             System.out.println("Connecting to database...");
             Class.forName("sybase.jdbc4.sqlanywhere.IDriver");
-            //conn = DriverManager.getConnection("jdbc4:sqlanywhere:uid=DBA;pwd=sql;");
-            conn = DriverManager.getConnection("jdbc:sqlanywhere:uid=DBA;pwd=sql;eng=sidproject");
+            conn = DriverManager.getConnection("jdbc4:sqlanywhere:uid=DBA;pwd=sql;");
 
             startExport();
         } catch (IOException e) {
@@ -48,8 +47,7 @@ public class CronJob {
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-
-
+            e.printStackTrace();
         }
 
     }

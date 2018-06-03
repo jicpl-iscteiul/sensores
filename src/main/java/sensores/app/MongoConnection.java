@@ -1,39 +1,69 @@
 package sensores.app;
 
-import java.net.UnknownHostException;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.*;
+import org.bson.Document;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.util.JSON;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MongoConnection {
 
-	MongoClient mongoClient;
-	DB database;
-	DBCollection collection;
+	private MongoClient mongoClient;
+	private MongoDatabase database;
+	private MongoCollection<Document> collection_sensores;
+	private MongoCollection<Document> collection_backup;
 
 	public MongoConnection() {
 		try {
-			mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-			database = mongoClient.getDB("sensores");
-			collection = database.getCollection("info");
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+			mongoClient = MongoClients
+					.create("mongodb://appSensores:super_password@ds129560.mlab.com:29560/sensoresdb");
+			database = mongoClient.getDatabase("sensoresdb");
+			collection_sensores = database.getCollection("sensores_info");
+			collection_backup = database.getCollection("info_backup");
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
-	public void save(String json) {
-		
-		DBObject dbObject = (DBObject)JSON.parse(json);
-		
-		collection.insert(dbObject);
-		
-		System.out.println("Inserted: " + json );
-
+	public void save(Document document) {
+		if (document == null) {
+			throw new NullPointerException("Document cannot be null");
+		}
+		collection_sensores.insertOne(document);
 	}
+
+	public List<Document> findAll() throws Exception {
+		List<Document> documents = null;
+		try {
+			documents = collection_sensores.find().into(new ArrayList<Document>());
+		} catch (Exception e) {
+			e.getMessage();
+			throw new Exception(e.getMessage());
+		}
+		return documents;
+	}
+
+	public void Delete(Document document) throws Exception {
+		try {
+			collection_sensores.deleteOne(document);
+
+		} catch (Exception e) {
+			e.getMessage();
+			throw new Exception(e.getMessage());
+		}
+	}
+
+	public void saveBackup(List<Document> documents) throws Exception {
+		try {
+			collection_backup.insertMany(documents);
+		} catch (Exception e) {
+			e.getMessage();
+			throw new Exception(e.getMessage());
+		}
+	}
+
 }

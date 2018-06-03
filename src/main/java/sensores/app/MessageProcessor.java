@@ -33,6 +33,7 @@ public class MessageProcessor {
 			System.out.println("Document cannot be null!");
 		else if (isFirstRun) {
 			startTimer();
+			System.out.println("isValid(document):" + isValid(document));
 			if (isValid(document)) {
 				mongoConnection.save(document);
 				lastValueHumidityInserted = Double.parseDouble(document.getString("temperature"));

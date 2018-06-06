@@ -27,37 +27,43 @@ public class MessageProcessor {
 	}
 
 	public void runVerification(String info) {
-		JSONObject object = new JSONObject(info);
-		Document document = Translators.translateToMongo(object);
-		if (document == null)
-			System.out.println("Document cannot be null!");
-		else if (isFirstRun) {
-			startTimer();
-			System.out.println("isValid(document):" + isValid(document));
-			if (isValid(document)) {
-				mongoConnection.save(document);
-				lastValueHumidityInserted = Double.parseDouble(document.getString("temperature"));
-				lastValueTemperatureInserted = Double.parseDouble(document.getString("temperature"));
-				isFirstRun = false;
-			}
-			lastValueHumidity = Double.parseDouble(document.getString("temperature"));
-			lastValueTemperature = Double.parseDouble(document.getString("temperature"));
-		} else if (isTimeToSave()) {
-			if (isValid(document)) {
-				mongoConnection.save(document);
-				lastValueHumidityInserted = Double.parseDouble(document.getString("temperature"));
-				lastValueTemperatureInserted = Double.parseDouble(document.getString("temperature"));
+		try {
+			JSONObject object = new JSONObject(info);
+			Document document = Translators.translateToMongo(object);
+			if (document == null)
+				System.out.println("Document cannot be null!");
+			else if (isFirstRun) {
 				startTimer();
+				System.out.println("isValid(document):" + isValid(document));
+				if (isValid(document)) {
+					mongoConnection.save(document);
+					lastValueHumidityInserted = (Double) document.get("humidade");
+					lastValueTemperatureInserted = (Double) document.get("temperatura");
+					isFirstRun = false;
+				}
+				
+				lastValueHumidity = (Double) document.get("humidade");
+				lastValueTemperature = (Double) document.get("temperatura");
+			} else if (isTimeToSave()) {
+				if (isValid(document)) {
+					mongoConnection.save(document);
+					lastValueHumidityInserted = (Double) document.get("humidade");
+					lastValueTemperatureInserted = (Double) document.get("temperatura");
+					startTimer();
+				}
+				lastValueHumidity = (Double) document.get("humidade");
+				lastValueTemperature = (Double) document.get("temperatura");
 			}
-			lastValueHumidity = Double.parseDouble(document.getString("temperature"));
-			lastValueTemperature = Double.parseDouble(document.getString("temperature"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println();
 		}
 	}
 
 	private boolean isValid(Document document) {
 		return validHumidity(document) && validTemperature(document);
 	}
-	
+
 	private boolean validTemperature(Document document) {
 		if (lastValueTemperature == null)
 			return true;
@@ -73,17 +79,17 @@ public class MessageProcessor {
 
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	private boolean validHumidity(Document document) {
 		if (lastValueHumidity == null)
 			return true;
 
 		if (1.3 * lastValueHumidity >= Double.parseDouble(document.getString("humidity"))
 				|| 0.7 * lastValueHumidity <= Double.parseDouble(document.getString("humidity"))) {
-			
+
 			if (lastValueHumidity != lastValueHumidityInserted) {
 				if (1.3 * lastValueHumidityInserted <= Double.parseDouble(document.getString("humidity"))
 						&& 0.7 * lastValueHumidityInserted >= Double.parseDouble(document.getString("humidity")))

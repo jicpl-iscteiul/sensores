@@ -72,7 +72,7 @@ public class CronJob {
 						int i = 0;
 						Document document = null;
 						boolean executed = false;
-						
+
 						while (i != documents.size()) {
 
 							try {
@@ -98,7 +98,6 @@ public class CronJob {
 								System.out.println("SAVED ON SYBASE: " + document.get("_id"));
 								i++;
 
-								
 							} catch (Exception e) {
 								e.printStackTrace();
 								if (executed) {

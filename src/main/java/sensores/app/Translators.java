@@ -23,7 +23,7 @@ public class Translators {
 			e.printStackTrace();
 			document = null;
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 			document = null;
 		}
 		return document;

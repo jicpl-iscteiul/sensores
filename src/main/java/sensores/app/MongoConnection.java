@@ -34,6 +34,7 @@ public class MongoConnection {
 			throw new NullPointerException("Document cannot be null");
 		}
 		collection_sensores.insertOne(document);
+		System.out.println("INSERTED!");
 	}
 
 	public List<Document> findAll() throws Exception {

@@ -33,6 +33,7 @@ public class MessageProcessor {
 			if (document == null)
 				System.out.println("Document cannot be null!");
 			else if (isFirstRun) {
+				System.out.println("is1strun");
 				startTimer();
 				System.out.println("isValid(document):" + isValid(document));
 				if (isValid(document)) {
@@ -41,12 +42,19 @@ public class MessageProcessor {
 					lastValueTemperatureInserted = (Double) document.get("temperatura");
 					isFirstRun = false;
 				}
-				
+
 				lastValueHumidity = (Double) document.get("humidade");
 				lastValueTemperature = (Double) document.get("temperatura");
 			} else if (isTimeToSave()) {
+				System.out.println("isNOT1strun");
 				if (isValid(document)) {
+					System.out.println("isValid");
 					mongoConnection.save(document);
+					timerTask.cancel();
+					System.out.println("timer" + timerTask);
+					counter = 0;
+					System.out.println("counter: " + counter);
+
 					lastValueHumidityInserted = (Double) document.get("humidade");
 					lastValueTemperatureInserted = (Double) document.get("temperatura");
 					startTimer();
@@ -68,12 +76,12 @@ public class MessageProcessor {
 		if (lastValueTemperature == null)
 			return true;
 
-		if (1.3 * lastValueTemperature >= Double.parseDouble(document.getString("temperature"))
-				|| 0.7 * lastValueTemperature <= Double.parseDouble(document.getString("temperature"))) {
+		if (1.3 * lastValueTemperature >= (Double) document.get("temperatura")
+				|| 0.7 * lastValueTemperature <= (Double) document.get("temperatura")) {
 
 			if (lastValueTemperature != lastValueTemperatureInserted) {
-				if (1.3 * lastValueTemperatureInserted <= Double.parseDouble(document.getString("temperature"))
-						&& 0.7 * lastValueTemperatureInserted >= Double.parseDouble(document.getString("temperature")))
+				if (1.3 * lastValueTemperatureInserted <= (Double) document.get("temperatura")
+						&& 0.7 * lastValueTemperatureInserted >= (Double) document.get("temperatura"))
 					return true;
 			}
 
@@ -87,12 +95,12 @@ public class MessageProcessor {
 		if (lastValueHumidity == null)
 			return true;
 
-		if (1.3 * lastValueHumidity >= Double.parseDouble(document.getString("humidity"))
-				|| 0.7 * lastValueHumidity <= Double.parseDouble(document.getString("humidity"))) {
+		if (1.3 * lastValueHumidity >= (Double) document.get("humidade")
+				|| 0.7 * lastValueHumidity <= (Double) document.get("humidade")) {
 
 			if (lastValueHumidity != lastValueHumidityInserted) {
-				if (1.3 * lastValueHumidityInserted <= Double.parseDouble(document.getString("humidity"))
-						&& 0.7 * lastValueHumidityInserted >= Double.parseDouble(document.getString("humidity")))
+				if (1.3 * lastValueHumidityInserted <= (Double) document.get("humidade")
+						&& 0.7 * lastValueHumidityInserted >= (Double) document.get("humidade"))
 					return true;
 			}
 
@@ -102,10 +110,6 @@ public class MessageProcessor {
 	}
 
 	private void startTimer() {
-		if (timerTask != null) {
-			timerTask.cancel();
-			counter = 0;
-		}
 
 		timerTask = new TimerTask() {
 
